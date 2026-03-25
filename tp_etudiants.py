@@ -1,17 +1,16 @@
 from collections.abc import Iterable, Iterator
 
-# --- Décorateur de classe ---
+# --- Décorateur pour Student (matière 4) ---
 def add_chemistry(cls):
     original_init = cls.__init__
 
     def new_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
-        self.chem_grade = 0  # note par défaut pour la nouvelle matière
+        self.chem_grade = 0  # note par défaut pour chimie
 
     cls.__init__ = new_init
     return cls
 
-# --- Classe Student décorée ---
 @add_chemistry
 class Student:
     def __init__(self, name, math_grade, physics_grade, info_grade):
@@ -21,7 +20,7 @@ class Student:
         self.info_grade = info_grade
 
 
-# --- Itérateurs existants ---
+# --- Itérateurs ---
 class MathIterator(Iterator):
     def __init__(self, students):
         self.sorted_students = sorted(students, key=lambda s: s.math_grade, reverse=True)
@@ -58,7 +57,6 @@ class InfoIterator(Iterator):
         else:
             raise StopIteration
 
-# --- Nouvel itérateur pour la 4ème matière ---
 class ChemIterator(Iterator):
     def __init__(self, students):
         self.sorted_students = sorted(students, key=lambda s: s.chem_grade, reverse=True)
@@ -71,7 +69,14 @@ class ChemIterator(Iterator):
         else:
             raise StopIteration
 
+# --- Décorateur pour ajouter la méthode iter_matter_4 à SchoolClass ---
+def add_matter_4_iterator(cls):
+    def iter_matter_4(self):
+        return ChemIterator(self.students)
+    cls.iter_matter_4 = iter_matter_4
+    return cls
 
+@add_matter_4_iterator
 class SchoolClass(Iterable):
     def __init__(self):
         self.students = []
@@ -79,7 +84,6 @@ class SchoolClass(Iterable):
     def add_student(self, student):
         self.students.append(student)
 
-    # itérable par défaut → matière 1
     def __iter__(self):
         return MathIterator(self.students)
 
@@ -88,9 +92,6 @@ class SchoolClass(Iterable):
 
     def iter_matter_3(self):
         return InfoIterator(self.students)
-
-    def iter_matter_4(self):
-        return ChemIterator(self.students)
 
 
 # --- Bloc main ---
@@ -104,18 +105,6 @@ school_class.students[0].chem_grade = 15
 school_class.students[1].chem_grade = 12
 school_class.students[2].chem_grade = 18
 
-print("Classement matière 1 (math) :")
-for s in school_class:
-    print(s.name, ":", s.math_grade)
-
-print("\nClassement matière 2 (physique) :")
-for s in school_class.iter_matter_2():
-    print(s.name, ":", s.physics_grade)
-
-print("\nClassement matière 3 (info) :")
-for s in school_class.iter_matter_3():
-    print(s.name, ":", s.info_grade)
-
-print("\nClassement matière 4 (chimie) :")
+print("Classement matière 4 (chimie) via décorateur :")
 for s in school_class.iter_matter_4():
     print(s.name, ":", s.chem_grade)
