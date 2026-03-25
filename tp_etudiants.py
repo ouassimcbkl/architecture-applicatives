@@ -13,7 +13,6 @@ class SchoolClass:
     def add_student(self, student):
         self.students.append(student)
 
-    # Méthode demandée par le professeur
     def rank_matter_1(self):
         sorted_students = sorted(
             self.students,
@@ -25,12 +24,37 @@ class SchoolClass:
         for student in sorted_students:
             print(student.name, ":", student.math_grade)
 
+    # Nouvelle méthode demandée
+    def rank_matter_2(self):
+        sorted_students = sorted(
+            self.students,
+            key=lambda student: student.physics_grade,
+            reverse=True
+        )
 
-# --- Bloc main / code de test ---
+        print("Classement matière 2 (physique) :")
+        for student in sorted_students:
+            print(student.name, ":", student.physics_grade)
+
+    # Nouvelle méthode demandée
+    def rank_matter_3(self):
+        sorted_students = sorted(
+            self.students,
+            key=lambda student: student.info_grade,
+            reverse=True
+        )
+
+        print("Classement matière 3 (informatique) :")
+        for student in sorted_students:
+            print(student.name, ":", student.info_grade)
+
+
+# --- Bloc main ---
 school_class = SchoolClass()
 school_class.add_student(Student('J', 10, 12, 13))
 school_class.add_student(Student('A', 8, 2, 17))
 school_class.add_student(Student('V', 9, 14, 14))
 
-# appel de la méthode demandé
 school_class.rank_matter_1()
+school_class.rank_matter_2()
+school_class.rank_matter_3()
