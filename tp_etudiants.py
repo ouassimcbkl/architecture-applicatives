@@ -1,5 +1,18 @@
 from collections.abc import Iterable, Iterator
 
+# --- Décorateur de classe ---
+def add_chemistry(cls):
+    original_init = cls.__init__
+
+    def new_init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        self.chem_grade = 0  # note par défaut pour la nouvelle matière
+
+    cls.__init__ = new_init
+    return cls
+
+# --- Classe Student décorée ---
+@add_chemistry
 class Student:
     def __init__(self, name, math_grade, physics_grade, info_grade):
         self.name = name
@@ -8,45 +21,53 @@ class Student:
         self.info_grade = info_grade
 
 
-# Itérateur matière 1 (math)
+# --- Itérateurs existants ---
 class MathIterator(Iterator):
     def __init__(self, students):
         self.sorted_students = sorted(students, key=lambda s: s.math_grade, reverse=True)
         self.index = 0
-
     def __next__(self):
         if self.index < len(self.sorted_students):
-            student = self.sorted_students[self.index]
+            s = self.sorted_students[self.index]
             self.index += 1
-            return student
+            return s
         else:
             raise StopIteration
 
-# Itérateur matière 2 (physique)
 class PhysicsIterator(Iterator):
     def __init__(self, students):
         self.sorted_students = sorted(students, key=lambda s: s.physics_grade, reverse=True)
         self.index = 0
-
     def __next__(self):
         if self.index < len(self.sorted_students):
-            student = self.sorted_students[self.index]
+            s = self.sorted_students[self.index]
             self.index += 1
-            return student
+            return s
         else:
             raise StopIteration
 
-# Itérateur matière 3 (info)
 class InfoIterator(Iterator):
     def __init__(self, students):
         self.sorted_students = sorted(students, key=lambda s: s.info_grade, reverse=True)
         self.index = 0
-
     def __next__(self):
         if self.index < len(self.sorted_students):
-            student = self.sorted_students[self.index]
+            s = self.sorted_students[self.index]
             self.index += 1
-            return student
+            return s
+        else:
+            raise StopIteration
+
+# --- Nouvel itérateur pour la 4ème matière ---
+class ChemIterator(Iterator):
+    def __init__(self, students):
+        self.sorted_students = sorted(students, key=lambda s: s.chem_grade, reverse=True)
+        self.index = 0
+    def __next__(self):
+        if self.index < len(self.sorted_students):
+            s = self.sorted_students[self.index]
+            self.index += 1
+            return s
         else:
             raise StopIteration
 
@@ -68,6 +89,9 @@ class SchoolClass(Iterable):
     def iter_matter_3(self):
         return InfoIterator(self.students)
 
+    def iter_matter_4(self):
+        return ChemIterator(self.students)
+
 
 # --- Bloc main ---
 school_class = SchoolClass()
@@ -75,14 +99,23 @@ school_class.add_student(Student('J', 10, 12, 13))
 school_class.add_student(Student('A', 8, 2, 17))
 school_class.add_student(Student('V', 9, 14, 14))
 
+# Mise à jour des notes de chimie
+school_class.students[0].chem_grade = 15
+school_class.students[1].chem_grade = 12
+school_class.students[2].chem_grade = 18
+
 print("Classement matière 1 (math) :")
-for student in school_class:
-    print(student.name, ":", student.math_grade)
+for s in school_class:
+    print(s.name, ":", s.math_grade)
 
 print("\nClassement matière 2 (physique) :")
-for student in school_class.iter_matter_2():
-    print(student.name, ":", student.physics_grade)
+for s in school_class.iter_matter_2():
+    print(s.name, ":", s.physics_grade)
 
 print("\nClassement matière 3 (info) :")
-for student in school_class.iter_matter_3():
-    print(student.name, ":", student.info_grade)
+for s in school_class.iter_matter_3():
+    print(s.name, ":", s.info_grade)
+
+print("\nClassement matière 4 (chimie) :")
+for s in school_class.iter_matter_4():
+    print(s.name, ":", s.chem_grade)
